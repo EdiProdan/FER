@@ -63,52 +63,77 @@ class LexicalAnalyzer:
 
     def analyze_line(self, line_index):  # k = "10"
         for (row, unit) in enumerate(self.line):
+
+            # if reached space or tab, check if it is idn or num | az or za
             if unit == ' ' or unit == '\t':
+                if self.curRead != "":
+                    if self.curRead in self.dict:
+                        print(self.dict[self.curRead], line_index, self.curRead )
+                    else:
+                        self.print_idn_num()
+                        if self.isIdn:
+                            self.component = "IDN"
+
+                        elif self.isNum:
+                            self.component = "BROJ"
+
+                        print(self.component, line_index, self.curRead)
+
+                self.reset_values()
                 continue
 
+            # if reached new line, check if it is idn or num
             if unit == '\n':
                 if self.curRead != "":
-                    if self.isIdn:
-                        self.component = "IDN"
-                        self.isIdn = False
-                    elif self.isNum:
-                        self.component = "BROJ"
-                        self.isNum = False
-                    print(self.component, line_index, self.curRead)
-                    self.curRead = ""
-                    self.component = ""
+                    if self.curRead in self.dict:
+                        print(self.dict[self.curRead], line_index, self.curRead)
+
+                    else:
+                        if self.isIdn:
+                            self.component = "IDN"
+
+                        elif self.isNum:
+                            self.component = "BROJ"
+
+                        print(self.component, line_index, self.curRead)
+
+                self.reset_values()
+
             else:
+                # check if its a comment
                 if self.line[row] == '/' and self.line[row + 1] == '/':
                     # obrisati sve do zadnja dva znaka
                     self.line = self.line[:-1]
+                    # print everything before comment
                     if self.curRead != "":
                         if self.isIdn:
                             self.component = "IDN"
-                            self.isIdn = False
                         elif self.isNum:
                             self.component = "BROJ"
-                            self.isNum = False
                         print(self.component, line_index, self.curRead)
-                        self.curRead = ""
-                        self.component = ""
+
+                    self.reset_values()
+                    # go to next line
                     break
+
+                # check if its in a dict
                 if unit in self.dict:
                     if self.curRead != "":
                         if self.isIdn:
                             self.component = "IDN"
-                            self.isIdn = False
                         elif self.isNum:
                             self.component = "BROJ"
-                            self.isNum = False
+
                         print(self.component, line_index, self.curRead)
-                        self.curRead = ""
-                        self.component = ""
 
                     print(self.dict[unit], line_index, unit)
+                    self.reset_values()
                 else:
                     self.curRead += unit
                     if 'a' <= unit <= 'z' or 'A' <= unit <= 'Z':
                         if self.isNum:
+                            # remove last char
+                            self.curRead = self.curRead[:-1]
                             print("BROJ", line_index, self.curRead)
                             self.curRead = unit
                             self.isNum = False
@@ -122,23 +147,15 @@ class LexicalAnalyzer:
                         else:
                             self.isNum = True
 
-                    if self.curRead != "":
-                        # provjeriti ako postoji substring u dict
 
+    def print_idn_num(self):
+        pass
 
-                        if self.curRead in self.dict:
-                            if self.curRead != "":
-                                if self.isIdn:
-                                    self.component = "IDN"
-                                    self.isIdn = False
-                                elif self.isNum:
-                                    self.component = "BROJ"
-                                    self.isNum = False
-                                print(self.component, line_index, self.curRead)
-                                self.curRead = ""
-                                self.component = ""
-
-                # elif '0' <= unit <= '9' and self.isIdn:
+    def reset_values(self):
+        self.curRead = ""
+        self.isIdn = False
+        self.isNum = False
+        self.component = ""
 
 
 if __name__ == "__main__":
