@@ -11,7 +11,7 @@ private:
     vector<string> inputString;
     vector<string> output;
     string outputLine;
-    int i;
+    size_t i;
     int depth;
 
 public:
