@@ -1,9 +1,0 @@
-Program za pohranu zaporki implementiran je koristeći simetričnu kriptografiju. Prilikom enkripcije, koristeći se AES GCM načinom rada, šifrira se plaintext koji se s IV, soli i potpisom upisuje u binarnu datoteku. Upis i dohvaćanje lozinke koriste dictionary, strukturu podataka gdje je ključ adresa i vrijednost je lozinka. Ako je već pohranjena zaporka pod istom adresom onda se ona zamijeni sa zadanom. Time se osigurava funkcionalnost programa.
-
-Prije svega, nasumično su generirani sol i IV. Nasumična sol se dodaje originalnoj lozinki kako bi se osigurali da je svaka lozinka uistinu jedinstvena. Koristeći "key derivation function", pomoću soli i lozinke izračuna se ključ. Prilikom enkriptiranja plaintext-a, koristimo AES GCM, s IV-jem i nedavno dobivenim ključem. Pošto je plaintext koji šifriramo jedan string, nakon šifriranja neće biti moguće odrediti niti duljinu zaporke niti promjene lozinki.
-
-Što se tiče adresa, one nikada nisu spremljene u plaintext obliku već su enkriptirane algoritmom AES GCM. Čak i da napadač dođe do šifriranog teksta, ne može ga dekriptirati bez master passworda jer mu za generiranja ključa treba master password.
-
-Nakon dekriptiranja binarne datoteke, u programu se iščitava IV, salt, tag (MAC) i ciphertext. Metoda dekripcije kao argument prima niz bajtova tag, koji služi kao potpis. Ako verifikacija nije prošla, moguća su dva događaja. 
-Prvi događaj je krivo unesena lozinka. Uspoređuje se izračunata sol koja s pogrešnim master passwordom vraća drugačiji ključ, koji će se iskoristiti prilikom dekripcije čija će metoda vratiti novi potpis. Nakon usporedbe, dva potpisa bit će različita i program se zaustavlja.
-Drugi događaj je izmjena podataka unutar binarne datoteke. Program započinje kao i u prethodnom događaju, samo što smo unijeli ispravnu lozinku. Prilikom dekripcije, zbog promjena u datoteci, dobiveni potpis neće se podudarati s iščitanim potpisom iz datoteke i program se prekida.
